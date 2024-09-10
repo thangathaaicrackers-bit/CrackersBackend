@@ -58,6 +58,7 @@ app.post('/send-estimate', async (req, res) => {
             auth: {
                 user: 'thangathaaicrackers@gmail.com', // Replace with your email
                 pass: 'sazt fick irpx gfsr', // Replace with your 
+                
             },
         });
 
@@ -95,35 +96,37 @@ app.post('/send-estimate', async (req, res) => {
     doc.text(`Address: ${orderData.address}, ${orderData.city}, ${orderData.state}`);
 
     // Add some spacing
-    doc.moveDown().fontSize(14).text('Order Details', { underline: true });
+    // Add some spacing before the table header
+doc.moveDown(1.5);
 
-    // Table Headers with proper column alignment
-    const tableTop = doc.y + 20;
-    const itemNumberX = 50;
-    const itemNameX = 100;
-    const itemQuantityX = 300;
-    const itemPriceX = 370;
-    const itemTotalX = 450;
+// Table Headers with proper column alignment
+const tableTop = doc.y + 10;  // Adjust the top position
+const itemNumberX = 50;
+const itemNameX = 100;
+const itemQuantityX = 300;
+const itemPriceX = 370;
+const itemTotalX = 450;
 
-    doc.fontSize(12);
-    doc.text('S.NO', itemNumberX, tableTop, { bold: true });
-    doc.text('Product Name', itemNameX, tableTop, { bold: true });
-    doc.text('Quantity', itemQuantityX, tableTop, { bold: true });
-    doc.text('Rate Rs', itemPriceX, tableTop, { bold: true });
-    doc.text('Amount Rs', itemTotalX, tableTop, { bold: true });
+doc.fontSize(12);
+doc.text('S.NO', itemNumberX, tableTop, { bold: true });
+doc.text('Product Name', itemNameX, tableTop, { bold: true });
+doc.text('Quantity', itemQuantityX, tableTop, { bold: true });
+doc.text('Rate Rs', itemPriceX, tableTop, { bold: true });
+doc.text('Amount Rs', itemTotalX, tableTop, { bold: true });
 
-    // Draw a horizontal line under the header
-    doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
+// Draw a horizontal line under the header with extra padding
+doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
 
-    // Table Data with proper column alignment
-    orderData.orderItems.forEach((item, index) => {
-        const rowY = doc.y + 10;
-        doc.text((index + 1).toString(), itemNumberX, rowY);
-        doc.text(item.name, itemNameX, rowY);
-        doc.text(item.quantity.toString(), itemQuantityX, rowY);
-        doc.text(item.price.toString(), itemPriceX, rowY);
-        doc.text(item.total.toString(), itemTotalX, rowY);
-    });
+// Table Data with proper column alignment
+orderData.orderItems.forEach((item, index) => {
+    const rowY = doc.y + 15;  // Add extra spacing between rows
+    doc.text((index + 1).toString(), itemNumberX, rowY);
+    doc.text(item.name, itemNameX, rowY);
+    doc.text(item.quantity.toString(), itemQuantityX, rowY);
+    doc.text(item.price.toString(), itemPriceX, rowY);
+    doc.text(item.total.toString(), itemTotalX, rowY);
+    doc.moveDown();  // Ensure spacing between items
+});
 
     // Add a horizontal line before totals
     doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
