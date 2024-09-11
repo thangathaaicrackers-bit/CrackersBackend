@@ -19,11 +19,11 @@ const upload = multer({ storage });
 // POST method to add a new cracker and upload an image
 router.post('/crackers', upload.single('image'), async (req, res) => {
   try {
-    const { name, price, category } = req.body;
+    const { name, price, category, discount } = req.body;
     const file = req.file;
 
     // Validate the request data
-    if (!name || !price || !category) {
+    if (!name || !price || !category || !discount) {
       return res.status(400).json({ message: 'Name and price are required' });
     }
 
@@ -32,6 +32,7 @@ router.post('/crackers', upload.single('image'), async (req, res) => {
       name,
       price,
       category,
+      discount,
     });
 
     // If an image is provided, upload it to S3

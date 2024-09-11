@@ -16,6 +16,10 @@ const CrackersSchema= new mongoose.Schema({
     category: {
         type: String,
         required:[true,'provide category']
+    },
+    discount:{
+        type:String,
+        required:[true,'provide discount']
     }
 })
 
