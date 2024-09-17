@@ -110,8 +110,8 @@ app.post('/send-estimate', async (req, res) => {
         doc.text('S.NO', itemNumberX, tableTop, { bold: true });
         doc.text('Product Name', itemNameX, tableTop, { bold: true });
         doc.text('Quantity', itemQuantityX, tableTop, { bold: true });
-        doc.text('Rate Rs', itemPriceX, tableTop, { bold: true });
-        doc.text('Amount Rs', itemTotalX, tableTop, { bold: true });
+        doc.text('Rate per 1 box', itemPriceX, tableTop, { bold: true });
+        doc.text('Total Discounted Amount', itemTotalX, tableTop, { bold: true });
 
         // Draw a horizontal line under the header
         doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
