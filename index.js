@@ -56,14 +56,15 @@ app.post('/send-estimate', async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'thangathaaisender@gmail.com', // Replace with your email
-                pass: 'izvq fvhc cdyj feck', // Replace with your password
+                user: 'thangathaaisender@gmail.com',
+                pass: 'izvq fvhc cdyj feck',
             },
         });
 
         const mailOptions = {
-            from: 'thangathaaisender@gmail.com', // Replace with your email
-            to: 'thangathaaicrackers@gmail.com', // Replace with the owner's email
+            from: 'thangathaaisender@gmail.com', 
+            to: 'thangathaaicrackers@gmail.com', 
+            cc: orderData.email,
             subject: `Order Estimate - ${orderData.username}`,
             text: 'Please find attached the order estimate.',
             attachments: [
