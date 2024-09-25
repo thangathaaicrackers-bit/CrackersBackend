@@ -14,28 +14,25 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Allowlist for CORS
 const allowlist = [
     'http://localhost:5173',
     '*'
 ];
 
-// CORS options with dynamic origin checking
 const corsOptionsDelegate = (req, callback) => {
     let corsOptions = {
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         credentials: true,
     };
     if (allowlist.includes(req.header('Origin'))) {
-        corsOptions.origin = true; // Allow the origin
+        corsOptions.origin = true;
     } else {
-        corsOptions.origin = false; // Disallow the origin
+        corsOptions.origin = false;
     }
 
     callback(null, corsOptions);
 };
 
-// Use the cors middleware with the delegate
 app.use(cors(corsOptionsDelegate));
 
 app.use('/api', crackerRoutes);
@@ -84,22 +81,18 @@ app.post('/send-estimate', async (req, res) => {
         });
     });
 
-    // Add content to the PDF document
     doc.fontSize(18).text(`Order Estimate of ${orderData.username}`, { align: 'center' });
     doc.fontSize(12).text(`Date: ${new Date().toLocaleDateString('en-GB')}`, { align: 'right' });
 
-    // Customer Details
     doc.moveDown().fontSize(14).text('Customer Details', { underline: true });
     doc.fontSize(12).text(`Name: ${orderData.username}`);
     doc.text(`Phone: ${orderData.phoneNo}`);
     doc.text(`Email: ${orderData.email}`);
     doc.text(`Address: ${orderData.address}, ${orderData.city}, ${orderData.state}`);
 
-    // Function to draw table headers
     function drawTableHeaders(doc) {
         doc.moveDown(1.5);
 
-        // Table Headers with proper column alignment
         const tableTop = doc.y + 10;
         const itemNumberX = 50;
         const itemNameX = 100;
@@ -114,11 +107,9 @@ app.post('/send-estimate', async (req, res) => {
         doc.text('Rate per 1 box', itemPriceX, tableTop, { bold: true });
         doc.text('Total Discounted Amount', itemTotalX, tableTop, { bold: true });
 
-        // Draw a horizontal line under the header
         doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
     }
 
-    // Function to check if a new page is needed
     function checkForNewPage(doc, rowHeight) {
         if (doc.y + rowHeight > doc.page.height - doc.page.margins.bottom) {
             doc.addPage();
@@ -126,35 +117,36 @@ app.post('/send-estimate', async (req, res) => {
         }
     }
 
-    // Draw table headers for the first page
     drawTableHeaders(doc);
 
-    // Table Data with proper column alignment
     orderData.orderItems.forEach((item, index) => {
-        const rowHeight = 20; // Define row height
-        checkForNewPage(doc, rowHeight); // Check if a new page is needed
-
+        const rowHeight = 20; 
+        checkForNewPage(doc, rowHeight); 
+    
         const rowY = doc.y + 15;
         const itemNumberX = 50;
         const itemNameX = 100;
         const itemQuantityX = 300;
         const itemPriceX = 370;
         const itemTotalX = 450;
-
+    
         doc.text((index + 1).toString(), itemNumberX, rowY);
-        doc.text(item.name, itemNameX, rowY);
+    
+        doc.text(item.name, itemNameX, rowY, {
+            width: itemQuantityX - itemNameX - 10, 
+            ellipsis: true, 
+        });
+    
         doc.text(item.quantity.toString(), itemQuantityX, rowY);
         doc.text(item.price.toString(), itemPriceX, rowY);
         doc.text(item.total.toString(), itemTotalX, rowY);
-
-        doc.moveDown(); // Ensure spacing between items
+    
+        doc.moveDown(); 
     });
-
-    // Add a horizontal line before totals
+    
     doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
 
-    // Total Items and Overall Total
-    const totalsY = doc.y + 20; // Add some space before totals
+    const totalsY = doc.y + 20;
 
     doc.fontSize(12).text(`Total Items: ${orderData.orderItems.length}`, 50, totalsY);
     doc.text(`Overall Total: Rs ${orderData.overallTotal}`, { align: 'right' });
