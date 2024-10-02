@@ -53,18 +53,18 @@ const users = [
 ];
 
 // JWT Authentication Middleware
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+// const authenticateToken = (req, res, next) => {
+//     const authHeader = req.headers['authorization'];
+//     const token = authHeader && authHeader.split(' ')[1];
 
-    if (token == null) return res.sendStatus(401); // If no token, return Unauthorized
+//     if (token == null) return res.sendStatus(401); // If no token, return Unauthorized
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403); // If token invalid, return Forbidden
-        req.user = user;
-        next();
-    });
-};
+//     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+//         if (err) return res.sendStatus(403); // If token invalid, return Forbidden
+//         req.user = user;
+//         next();
+//     });
+// };
 
 // Login Route
 app.post('/api/login', async (req, res) => {
@@ -87,8 +87,9 @@ app.post('/api/login', async (req, res) => {
     res.json({ accessToken });
 });
 
-// Protect the send-estimate route using the authenticateToken middleware
-app.post('/send-estimate', authenticateToken, async (req, res) => {
+app.post('/send-estimate', async (req, res) => {
+    console.log('Headers:', req.headers);  // Add this to debug
+    console.log('Body:', req.body)  
     const { orderData } = req.body;
 
     const doc = new PDFDocument({ margin: 50 });
@@ -201,6 +202,7 @@ app.post('/send-estimate', authenticateToken, async (req, res) => {
 
     doc.end();
 });
+
 
 // Root route to confirm server is running
 app.get('/', (req, res) => {
