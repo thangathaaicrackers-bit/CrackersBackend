@@ -7,6 +7,8 @@ const userRoutes = require('./Logics/UserEstimate');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs'); // Password hashing
+const jwt = require('jsonwebtoken'); // Token generation
 
 const app = express();
 
@@ -40,7 +42,53 @@ app.use('/api', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-app.post('/send-estimate', async (req, res) => {
+// Mock user data (in a real-world app, this would come from your database)
+const users = [
+    {
+        id: 1,
+        username: 'admin',
+        email:'thangathaaicrackers@gmail.com',
+        password: bcrypt.hashSync('crackers2024', 10), // password is hashed
+    }
+];
+
+// JWT Authentication Middleware
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.sendStatus(401); // If no token, return Unauthorized
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403); // If token invalid, return Forbidden
+        req.user = user;
+        next();
+    });
+};
+
+// Login Route
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = users.find(u => u.email === email);
+    if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+    }
+
+    // Check if the password is correct
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
+    if (!isPasswordValid) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate a JWT token
+    const accessToken = jwt.sign({ username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.json({ accessToken });
+});
+
+// Protect the send-estimate route using the authenticateToken middleware
+app.post('/send-estimate', authenticateToken, async (req, res) => {
     const { orderData } = req.body;
 
     const doc = new PDFDocument({ margin: 50 });
@@ -154,12 +202,14 @@ app.post('/send-estimate', async (req, res) => {
     doc.end();
 });
 
+// Root route to confirm server is running
 app.get('/', (req, res) => {
     res.json({
         message: 'Server running'
     });
 });
 
+// Start the server and connect to the database
 const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI);
