@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const allowlist = [
     'http://localhost:5173',
+    'https://stellar-blini-e60e93.netlify.app/',
     '*'
 ];
 
